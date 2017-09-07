@@ -79,33 +79,35 @@
 </head>
 <body>
   <div class="container" id="container">
-    <div class="wrapper">
+    <div class="wrapper" id="lottery">
       <table>
         <tbody>
           <tr>
-            <td class="box-0">1元红包</td>
-            <td class="box-1">5积分</td>
-            <td class="box-2">1次加好友</td>
-            <td class="box-3 active">谢谢参与</td>
+            <td class="lottery-unit lottery-unit-0">1元红包</td>
+            <td class="lottery-unit lottery-unit-1">5积分</td>
+            <td class="lottery-unit lottery-unit-2">1次加好友</td>
+            <td class="lottery-unit lottery-unit-3 active">谢谢参与</td>
           </tr>
           <tr>
-            <td class="box-4">5积分</td>
+            <td class="lottery-unit lottery-unit-9">5积分</td>
             <td colspan="2"></td>
-            <td class="box-5">1元红包</td>
+            <td class="lottery-unit lottery-unit-4">1元红包</td>
           </tr>
           <tr>
-            <td class="box-6">谢谢参与</td>
-            <td class="box-7">1元红包</td>
-            <td class="box-8">谢谢参与</td>
-            <td class="box-9">5积分</td>
+            <td class="lottery-unit lottery-unit-8">谢谢参与</td>
+            <td class="lottery-unit lottery-unit-7">1元红包</td>
+            <td class="lottery-unit lottery-unit-6">谢谢参与</td>
+            <td class="lottery-unit lottery-unit-5">5积分</td>
           </tr>
         </tbody>
       </table>
     </div>
-    <div class="btn" id="start-btn">点击抽奖</div>
+    <div class="btn draw-btn" id="start-btn">点击抽奖</div>
   </div>
 
+  <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
   <script type="text/javascript" src="./image-preloader.js"></script>
+  <script type="text/javascript" src="./roll.js"></script>
   <script>
     const $container = document.getElementById('container');
     const $btn = document.getElementById('start-btn');
@@ -170,6 +172,7 @@
       }
 
       const radian = easeOut(spinningTime, 0, spinningChange, spinTotalTime);
+      console.log('radian', radian);
       const changeCount = Math.floor(radian);
       currentIndex += changeCount;
       const el = document.getElementsByClassName('box-' + currentIndex);
@@ -183,14 +186,14 @@
 
     }
 
-    $btn.addEventListener('click', () => {
-        spinningTime = 0;                                // 初始化当前时间
-        spinTotalTime = Math.random() * 3 + duration;    // 随机定义一个时间总量
-        spinningChange = velocity;  // 随机顶一个旋转速率
-        rotateWheel();
-        // 模拟后台获取数据
-        getBackendData();
-    })
+    // $btn.addEventListener('click', () => {
+    //     spinningTime = 0;                                // 初始化当前时间
+    //     spinTotalTime = Math.random() * 3 + duration;    // 随机定义一个时间总量
+    //     spinningChange = velocity;  // 随机顶一个旋转速率
+    //     rotateWheel();
+    //     // 模拟后台获取数据
+    //     getBackendData();
+    // })
   </script>
 </body>
 </html>
