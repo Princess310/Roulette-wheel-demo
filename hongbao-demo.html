@@ -26,13 +26,13 @@
     }
   </style>
 </head>
-<script type="text/javascript" src="./image-preloader.js"></script>
 <body>
   <div class="container" id="container">
     <canvas id="canvas"></canvas>
     <div class="btn" id="start-btn"></div>
   </div>
 
+  <script type="text/javascript" src="./image-preloader.js"></script>
   <script>
     const $container = document.getElementById('container');
     const $btn = document.getElementById('start-btn');
@@ -48,15 +48,19 @@
 
           awards = [               // 转盘内的奖品个数以及内容
               {
+                index: 0,
                 name: '一元红包',
                 img: './images/hongbao.png'
               }, {
+                index: 1,
                 name: '1次好友机会',
                 img: './images/count.png'
               }, {
+                index: 2,
                 name: '5积分',
                 img: './images/phone.png'
               }, {
+                index: 3,
                 name: '谢谢惠顾',
                 img: './images/emoji.png'
               }
@@ -83,7 +87,6 @@
           CENTER_X = canvas.width / 2,
           CENTER_Y = canvas.height / 2,
           FETCH_STATUS = 'static',
-          resultRadian = 0,
           result = {
             name: '谢谢惠顾',
             img: './images/emoji.png'
@@ -101,6 +104,17 @@
         if ((t /= d / 2) < 1) return c / 2 * t * t + b;
         return -c / 2 * ((--t) * (t - 2) - 1) + b;
     };
+
+    /**
+     * 缓动函数，由慢到快
+     * @param {Num} t 当前时间
+     * @param {Num} b 初始值
+     * @param {Num} c 变化值
+     * @param {Num} d 持续时间
+     */
+     function easeIn(t,b,c,d){
+        return c*(t/=d)*t + b;
+    }
 
 
     // -------------- style dom --------------//
@@ -184,15 +198,45 @@
      /**
      * 开始旋转
      */
+    let lastChangeStart = 0;
+    let checkFlag = false;
+    let changeFetchedRadian = 0;
+    let resultRadian = 0;
     function rotateWheel() {
         // 当 当前时间 大于 总时间，停止旋转，并返回当前值
         spinningTime += 20;
-        if (spinningTime >= spinTotalTime) {
-            console.log(getValue()); return
+        let _spinningChange = easeIn(spinningTime, 0, spinningChange, spinTotalTime) * (Math.PI / 180);
+        // if (spinningTime >= spinTotalTime) {
+        //   console.log(getValue());return;
+        // }
+
+        if (FETCH_STATUS === 'fetching' && spinningTime >=  spinTotalTime) {
+          _spinningChange = spinningChange * (Math.PI / 180);
+        } else if (FETCH_STATUS === 'fetched') {
+          if (spinningTime >= spinTotalTime) {
+            console.log('value', getValue());
+            spinningTime = 20;
+            checkFlag = false;
+            FETCH_STATUS = 'static';
+            return;
+          }
+
+          if (!checkFlag) {
+            const value = getValue();
+            const rangeRadian = 5 * 2 * Math.PI + (value.index - result.index) * awardRadian;
+            resultRadian = rangeRadian;
+          }
+
+          changeFetchedRadian = easeOut(spinningTime, 0, resultRadian, spinTotalTime);
+          checkFlag = true;
         }
-        const check = easeOut(spinningTime, 0, spinningChange, spinTotalTime);
-        let _spinningChange = (spinningChange - easeOut(spinningTime, 0, spinningChange, spinTotalTime)) * (Math.PI / 180);
-        startRadian += _spinningChange
+
+        if (!checkFlag) {
+          startRadian += _spinningChange
+          lastChangeStart = startRadian;
+        } else {
+          startRadian = lastChangeStart + changeFetchedRadian;
+        }
 
         drawRouletteWheel();
         window.requestAnimationFrame(rotateWheel);
@@ -235,14 +279,15 @@
         const radamIndex = parseInt(Math.random() * 10 % 4);
         result = awards[radamIndex];
         FETCH_STATUS = 'fetched';
-        console.log('result', result);
-      }, 2000);
+        spinningTime = 0;
+        console.log('模拟后台获取结果得:' + result.name);
+      }, 1000);
     }
 
     $btn.addEventListener('click', () => {
         spinningTime = 0;                                // 初始化当前时间
         spinTotalTime = Math.random() * 3 + duration;    // 随机定义一个时间总量
-        spinningChange = Math.random() * 10 + velocity;  // 随机顶一个旋转速率
+        spinningChange = velocity;  // 随机顶一个旋转速率
         rotateWheel();
         // 模拟后台获取数据
         getBackendData();

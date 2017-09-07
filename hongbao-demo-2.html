@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    body {
+      background: #f1f6f9;
+    }
+
+    .container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container .wrapper {
+      width: 350px;
+      height: 260px;
+      border-radius: 30px;
+      background-color: #ff5c5d;
+      border: 15px solid #ff5c5d;
+      border-image: url('./images/border.png') 30 30 round;;
+    }
+
+    .container .btn {
+      position: absolute;
+      width: 172px;
+      height: 84px;
+      color: #fe6869;
+      font-size: 24px;
+      text-align: center;
+      line-height: 64px;
+      box-sizing: border-box;
+      border: 8px #fcef86 solid;
+      background-color: #ffdc44;
+    }
+
+    table {
+      height: 100%;
+      width: 100%;
+    }
+
+    table td {
+      height: 80px;
+      width: 80px;
+      color: #fff;
+      text-align: center;
+    }
+
+    table tr:nth-of-type(n) td:nth-of-type(n) {
+      background: #fe6869;
+    }
+
+    table tr:nth-of-type(n) td:nth-of-type(2n) {
+      background: #ff9190;
+    }
+
+    table tr:nth-of-type(2n) td:nth-of-type(n) {
+      background: #ff9190;
+    }
+
+    table tr:nth-of-type(2n) td:nth-of-type(2n) {
+      background: #fe6869;
+    }
+
+    table tr:nth-of-type(2) td:last-child {
+      background: #fe6869;
+    }
+
+    table tr td.active {
+      background-color: #fcef86 !important;
+      color: #fa5758;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="container">
+    <div class="wrapper">
+      <table>
+        <tbody>
+          <tr>
+            <td class="box-0">1元红包</td>
+            <td class="box-1">5积分</td>
+            <td class="box-2">1次加好友</td>
+            <td class="box-3 active">谢谢参与</td>
+          </tr>
+          <tr>
+            <td class="box-4">5积分</td>
+            <td colspan="2"></td>
+            <td class="box-5">1元红包</td>
+          </tr>
+          <tr>
+            <td class="box-6">谢谢参与</td>
+            <td class="box-7">1元红包</td>
+            <td class="box-8">谢谢参与</td>
+            <td class="box-9">5积分</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="btn" id="start-btn">点击抽奖</div>
+  </div>
+
+  <script type="text/javascript" src="./image-preloader.js"></script>
+  <script>
+    const $container = document.getElementById('container');
+    const $btn = document.getElementById('start-btn');
+
+    // -------------- config params --------------//
+    let   awards = [               // 转盘内的奖品个数以及内容
+              {
+                index: 0,
+                name: '一元红包',
+                img: './images/hongbao.png'
+              }, {
+                index: 1,
+                name: '1次好友机会',
+                img: './images/count.png'
+              }, {
+                index: 2,
+                name: '5积分',
+                img: './images/phone.png'
+              }, {
+                index: 3,
+                name: '谢谢惠顾',
+                img: './images/emoji.png'
+              }
+          ],
+          duration = 4000,     // 旋转时间
+          velocity = 10,       // 旋转速率
+          currentIndex = 3,    // 当前选择
+          totalCount = 10,     // 总的抽奖数量
+
+          color = {
+            red: '#fe6869',
+            lightRed: '#ff9190',
+            deepRed: '#ff5c5d',
+            yellow: '#fbf087',
+            white: '#ffffff',
+          };
+    // -------------- /config params --------------//
+
+    // -------------- style dom --------------//
+    const winWidth = document.documentElement.clientWidth
+          winHeight = document.documentElement.clientHeight;
+
+    /**
+     * 缓动函数，由快到慢
+     * @param {Num} t 当前时间
+     * @param {Num} b 初始值
+     * @param {Num} c 变化值
+     * @param {Num} d 持续时间
+     */
+     function easeOut(t, b, c, d) {
+        if ((t /= d / 2) < 1) return c / 2 * t * t + b;
+        return -c / 2 * ((--t) * (t - 2) - 1) + b;
+    };
+
+    function rotateWheel() {
+      // 当 当前时间 大于 总时间，停止旋转，并返回当前值
+      spinningTime += 20;
+      console.log('spinningTime', spinningTime);
+      if (spinningTime >= spinTotalTime) {
+        console.log('ending');
+        return;
+      }
+
+      const radian = easeOut(spinningTime, 0, spinningChange, spinTotalTime);
+      const changeCount = Math.floor(radian);
+      currentIndex += changeCount;
+      const el = document.getElementsByClassName('box-' + currentIndex);
+      console.log('el', el);
+      // el && el[0].classList.add('active');
+
+      window.requestAnimationFrame(rotateWheel);
+    }
+
+    function getBackendData() {
+
+    }
+
+    $btn.addEventListener('click', () => {
+        spinningTime = 0;                                // 初始化当前时间
+        spinTotalTime = Math.random() * 3 + duration;    // 随机定义一个时间总量
+        spinningChange = velocity;  // 随机顶一个旋转速率
+        rotateWheel();
+        // 模拟后台获取数据
+        getBackendData();
+    })
+  </script>
+</body>
+</html>
